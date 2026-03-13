@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Spiritual Hand Power</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+<style>
+body{
+background:black;
+color:white;
+text-align:center;
+font-family:Arial;
+}
+
+video{
+display:none;
+}
+
+canvas{
+border:2px solid white;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Show your hand to activate power ✋⚡</h2>
+
+<video id="video" autoplay playsinline></video>
+<canvas id="canvas" width="640" height="480"></canvas>
+
+<script>
+
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+navigator.mediaDevices.getUserMedia({video:true})
+.then(stream=>{
+video.srcObject = stream;
+});
+
+const hands = new Hands({
+locateFile: (file)=>{
+return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+}
+});
+
+hands.setOptions({
+maxNumHands:1,
+minDetectionConfidence:0.7,
+minTrackingConfidence:0.7
+});
+
+hands.onResults(results=>{
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+ctx.drawImage(video,0,0,canvas.width,canvas.height);
+
+if(results.multiHandLandmarks.length > 0){
+
+// glowing energy effect
+ctx.beginPath();
+ctx.arc(320,240,120,0,Math.PI*2);
+ctx.strokeStyle="cyan";
+ctx.lineWidth=8;
+ctx.shadowBlur=40;
+ctx.shadowColor="blue";
+ctx.stroke();
+
+}
+
+});
+
+const camera = new Camera(video,{
+onFrame: async()=>{
+await hands.send({image: video});
+},
+width:640,
+height:480
+});
+
+camera.start();
+
+</script>
+
+</body>
+</html>
